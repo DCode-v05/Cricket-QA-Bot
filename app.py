@@ -1,4 +1,3 @@
-# Importing Dependencies
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.documents import Document
@@ -7,7 +6,6 @@ from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
 load_dotenv()
 
-# Cricket Information in Document
 cricket_document_data="""
 Cricket is a bat-and-ball game played between two teams of eleven players each. 
 The game is played on an oval field with a 22-yard-long pitch at the center. 
@@ -41,23 +39,18 @@ A bowler can deliver a legal over consisting of 6 balls.
 Cricket has many strategies like field placements, batting order, bowling variations, and powerplays that make it a highly tactical game.
 """
 
-# Convert Raw Text to Document - Langchain expect Document format
 cricket_document=Document(page_content=cricket_document_data)
 
-# Temperature - Control the Creativity of the model's responses
-model=ChatGoogleGenerativeAI(model="models/gemini-2.0-flash", temperature=0, google_api_key=os.getenv("GEMINI_API_KEY")) # 0 - focused responses, 1 - creative responses
+model=ChatGoogleGenerativeAI(model="models/gemini-2.0-flash", temperature=0, google_api_key=os.getenv("GEMINI_API_KEY"))
 
-# Prompt Tuning to Guide the Model to Focus on the Cricket
 qa_prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful assistant. Answer the question using only the provided context.\n\nContext:\n{context}"),
     ("human", "{input}"),
 ])
 
-# Function to format context documents
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# Creating the Chain for Question Answering - Context -> Input -> Tuned Prompt
 stuff_chain = (
     {
         "context": lambda x: format_docs(x["context"]),
@@ -74,6 +67,6 @@ questions = [
 ]
 
 for question in questions:
-    answer=stuff_chain.invoke({"input": question, "context": [cricket_document] }) # Starting the Chain with Context and Input
+    answer=stuff_chain.invoke({"input": question, "context": [cricket_document] })
     print(f"Q: {question}")
     print(f"A: {answer}\n")
